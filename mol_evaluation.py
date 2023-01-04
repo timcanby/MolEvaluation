@@ -4,7 +4,7 @@ print(rdBase.rdkitVersion)
 import pandas as pd
 import os
 import sys
-import hyperparameters
+#import hyperparameters
 from rdkit.Chem import AllChem, Descriptors
 import torch
 import torch.nn.functional as F
@@ -45,9 +45,10 @@ class DistanceMethods(object):
             self.metric_selected = DataStructs.KulczynskiSimilarity
         # If an exact match is not confirmed, this last case will be used if provided
         else:
-            self.metric_selected = DataStructs.TanimotoSimilarity
+            self.metric_selected =DataStructs.TanimotoSimilarity
 
     def mol_similarity_calc(self,smi1, smi2):
+        print(smi1[0])
         mol1 = Chem.MolFromSmiles(smi1[0])
         mol2 = Chem.MolFromSmiles(smi2[0])
         fp1 = AllChem.RDKFingerprint(mol1)
@@ -82,28 +83,24 @@ class DistanceMethods(object):
         return distance_matrix_gen_test,distance_matrix1_gen_gen,distance_matrix_test_test,silhouette_score_gen_test,silhouette_score_gen_gen
 
 if __name__ == "__main__":
-    warnings.simplefilter('ignore')
-    test = ['Oc1ccccc1-c1cccc2cnccc12', 'COc1cccc(NC(=O)Cc2coc3ccc(OC)cc23)c1']
-    test_sf = ['COCc1nnc(NC(=O)COc2ccc(C(C)(C)C)cc2)s1',
-               'O=C(C1CC2C=CC1C2)N1CCOc2ccccc21',
-               'Nc1c(Br)cccc1C(=O)Nc1ccncn1']
-    gen = ['CNC', 'Oc1ccccc1-c1cccc2cnccc12',
-           'CCCP',
-           'Cc1noc(C)c1CN(C)C(=O)Nc1cc(F)cc(F)c1',
-           'Cc1nc(NCc2ccccc2)no1-c1ccccc1', 'Oc1ccccc1-c1cccc2cnccc12']
 
-    distance_method=DistanceMethods(method='Dice')
-    Dice_result=distance_method.sample_and_calc_distance(gen=gen,test=test, n_sample=2)
-    print(f'Distance(gen*test): {np.mean(Dice_result[0])}')
-    print(f'Distance(gen*gen): {np.mean(Dice_result[1])}')
-    print(f'Distance(test*test): {np.mean(Dice_result[2])}')
-    print(f'Silhouette Score(n=2)(gen*gen): {Dice_result[4]}')
-    print(f'Silhouette Score(n=2)(gen*test): {Dice_result[3]}')
-    dic=moses_metrics.get_all_metrics(gen=gen,test=test,k=100)
+
+    warnings.simplefilter('ignore')
+
+    gen = ['CC(C)(C)c1ccc2occ(CC(=O)Nc3ccccc3F)c2c1',
+           'C[C@@H]1CC(Nc2cncc(-c3nncn3C)c2)C[C@@H](C)C1',
+]
+
+    test = ['COCC(=O)NCC(=O)c1c(C)oc(C)c1C',
+            'N#Cc1ccc(-c2ccc(O[C@@H](C(=O)N3CCCC3)c3ccccc3)cc2)cc1',
+]
+    distance_method = DistanceMethods(method='Dice')
+    Dice_result = distance_method.sample_and_calc_distance(gen=gen, test=test, n_sample=2)
+    print(f'similarity(gen*test): {np.mean(Dice_result[0])}')
+    print(f'similarity(gen*gen): {np.mean(Dice_result[1])}')
+    print(f'similarity(test*test): {np.mean(Dice_result[2])}')
+    print(f'similarity(Silhouette Score(n=2)(gen*gen): {Dice_result[4]}')
+    print(f'similarity(Silhouette Score(n=2)(gen*test): {Dice_result[3]}')
+    dic = moses_metrics.get_all_metrics(gen=gen, test=test, k=100)
     for k, v in dic.items():
         print(k, v)
-    #for each_item in moses_metrics.get_all_metrics(gen=gen,test=test):
-        #print(each_item)
-    #print(distance_method.sample_and_calc_distance(gen=gen,test=test, n_sample=2))
-    # print(metrics.get_all_metrics(train_smile, generate,k=2088))
-    #print(moses_metrics.get_all_metrics(gen=gen,test=test))
